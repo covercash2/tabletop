@@ -1,3 +1,4 @@
+/* (C)2023 */
 package tabletop.result
 
 sealed interface Result<T, E>
@@ -29,7 +30,7 @@ fun <T, E> Result<T, E>.errOrThrow(): E = when (this) {
     is Ok -> throw RuntimeException("expected error, got \"$value\"")
 }
 
-fun <T: Any, E: Any> T?.toResult(err: E): Result<T, E> = when (this) {
+fun <T : Any, E : Any> T?.toResult(err: E): Result<T, E> = when (this) {
     null -> Err(err)
     else -> Ok(this)
 }

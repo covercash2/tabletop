@@ -1,3 +1,4 @@
+/* (C)2023 */
 package tabletop
 
 import kotlinx.serialization.Serializable

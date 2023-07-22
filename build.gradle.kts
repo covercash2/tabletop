@@ -1,7 +1,10 @@
+import java.time.LocalDate
+
 plugins {
     val kotlinVersion = "1.8.21"
     kotlin("multiplatform") version kotlinVersion
     kotlin("plugin.serialization") version kotlinVersion
+    id("com.diffplug.spotless") version "6.20.0"
     `maven-publish`
 }
 
@@ -15,7 +18,7 @@ repositories {
 kotlin {
     jvm {
         compilations.all {
-            kotlinOptions.jvmTarget = "1.8"
+            kotlinOptions.jvmTarget = "17"
         }
         withJava()
         testRuns["test"].executionTask.configure {
@@ -30,7 +33,6 @@ kotlin {
         isMingwX64 -> mingwX64("native")
         else -> throw GradleException("Host OS is not supported in Kotlin/Native.")
     }
-
 
     sourceSets {
         val commonMain by getting {
@@ -54,5 +56,22 @@ kotlin {
         }
         val nativeMain by getting
         val nativeTest by getting
+    }
+}
+
+val currentYear = LocalDate.now().year
+
+spotless {
+    kotlin {
+        target("**/*.kt")
+        targetExclude("$buildDir/**/*.kt")
+
+        ktlint()
+        licenseHeader("/* (C)$currentYear */")
+    }
+
+    kotlinGradle {
+        target("*.gradle.kts")
+        ktlint()
     }
 }

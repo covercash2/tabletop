@@ -1,8 +1,21 @@
+/* (C)2023 */
 package tabletop.io
 
 import com.akuleshov7.ktoml.Toml
-import okio.*
-import tabletop.result.*
+import okio.BufferedSink
+import okio.FileMetadata
+import okio.FileNotFoundException
+import okio.FileSystem
+import okio.IOException
+import okio.buffer
+import okio.use
+import tabletop.result.Err
+import tabletop.result.Ok
+import tabletop.result.Result
+import tabletop.result.andThen
+import tabletop.result.map
+import tabletop.result.mapErr
+import tabletop.result.partitionErrors
 
 typealias FileResult<T> = Result<T, FileError>
 
@@ -24,10 +37,11 @@ fun FileIo.tryFile(path: Path): FileResult<File> =
     fileSystem.catchIoError(path) {
         exists(it)
     }.andThen { exists ->
-        if (exists)
+        if (exists) {
             Ok(File(path.okioPath))
-        else
+        } else {
             Err(FileError.FileNotFound(path))
+        }
     }
 
 fun FileSystem.tryCreateDirs(path: RawPath): FileResult<Directory> =
@@ -68,7 +82,7 @@ fun FileSystem.list(path: RawPath): FileResult<Directory> =
             Directory(
                 okioPath = path.okioPath,
                 contents = contents.toList(),
-            )
+            ),
         )
     }
 
@@ -124,7 +138,7 @@ fun FileIo.tryTomlFile(path: Path): FileResult<TomlFile> =
                     FileError.WrongExtension(
                         got = extension,
                         expected = "toml",
-                    )
+                    ),
                 )
             }
         }

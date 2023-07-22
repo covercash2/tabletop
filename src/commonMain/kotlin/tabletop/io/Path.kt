@@ -1,3 +1,4 @@
+/* (C)2023 */
 package tabletop.io
 
 import kotlinx.serialization.KSerializer
@@ -8,7 +9,9 @@ import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import okio.Path.Companion.toPath
-import tabletop.result.*
+import tabletop.result.Err
+import tabletop.result.Ok
+import tabletop.result.toResult
 import kotlin.jvm.JvmInline
 
 sealed interface Path {
@@ -37,7 +40,6 @@ value class File internal constructor(
     @Serializable(with = OkioPathSerializer::class)
     override val okioPath: okio.Path,
 ) : Path
-
 
 @Serializable
 @JvmInline

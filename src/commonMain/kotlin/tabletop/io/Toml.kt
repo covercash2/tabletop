@@ -1,3 +1,4 @@
+/* (C)2023 */
 package tabletop.io
 
 import com.akuleshov7.ktoml.Toml
