@@ -51,9 +51,7 @@ class FileIoTest {
         val configDirPath = "/test/dir/.config".path()
         val configDir = fileIo.tryDir(configDirPath, create = true).getOrThrow()
 
-        val config = Config(
-            dataDir = configDir.dirPath(),
-        )
+        val config = Config()
 
         val configPath = "config.toml".path()
         val configResult: TomlFile = fileIo.writeToml(config, configPath).getOrThrow()

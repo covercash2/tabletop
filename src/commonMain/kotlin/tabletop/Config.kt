@@ -2,9 +2,11 @@
 package tabletop
 
 import kotlinx.serialization.Serializable
-import tabletop.io.DirPath
 
 @Serializable
 data class Config(
-    val dataDir: DirPath,
+    val distanceUnit: Int = 5,
+    val distanceUnitName: String = "feet",
 )
+
+fun defaultConfig(): Config = Config()

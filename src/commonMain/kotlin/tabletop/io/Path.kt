@@ -59,8 +59,12 @@ value class RawPath(
     override val okioPath: okio.Path,
 ) : Path
 
-fun String.path(): Path = RawPath(this.toPath())
+fun String.path(): Path = this.toPath().path()
+fun okio.Path.path(): Path = RawPath(this)
 fun Path.asRaw(): RawPath = RawPath(okioPath)
+
+fun Path.resolve(string: String): RawPath = RawPath(okioPath.resolve(string))
+operator fun Path.div(string: String): RawPath = resolve(string)
 
 val Path.extension: String?
     get() = when (this) {

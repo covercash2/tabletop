@@ -5,20 +5,32 @@ sealed interface Result<T, E>
 data class Ok<T, E>(val value: T) : Result<T, E>
 data class Err<T, E>(val error: E) : Result<T, E>
 
-fun <T, R, E> Result<T, E>.map(fn: (T) -> R): Result<R, E> = when (this) {
+inline fun <T, R, E> Result<T, E>.map(fn: (T) -> R): Result<R, E> = when (this) {
     is Err -> Err(error)
     is Ok -> Ok(fn(value))
 }
 
-fun <T, R, E> Result<T, E>.andThen(fn: (T) -> Result<R, E>): Result<R, E> = when (this) {
+inline fun <T, R, E> Result<T, E>.andThen(fn: (T) -> Result<R, E>): Result<R, E> = when (this) {
     is Err -> Err(error)
     is Ok -> fn(value)
 }
 
-fun <T, E, F> Result<T, E>.mapErr(fn: (E) -> F): Result<T, F> = when (this) {
+inline fun <T, E, F> Result<T, E>.mapErr(fn: (E) -> F): Result<T, F> = when (this) {
     is Err -> Err(fn(error))
     is Ok -> Ok(value)
 }
+
+inline fun <T, E> Result<T, E>.onErr(fn: (E) -> Unit): Result<T, E> = when (this) {
+    is Ok -> this
+    is Err -> {
+        fn(error)
+        this
+    }
+}
+
+inline fun <T, E> Result<T, E>.extract(fn: (E) -> Unit): T =
+    onErr { fn(it) }
+        .getOrThrow()
 
 fun <T, E> Result<T, E>.getOrThrow(): T = when (this) {
     is Err -> throw RuntimeException("error extracting value: $error")

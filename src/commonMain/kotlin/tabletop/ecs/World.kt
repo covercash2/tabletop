@@ -1,5 +1,7 @@
 /* (C)2023 */
-package tabletop
+package tabletop.ecs
+
+import tabletop.StatBlock
 
 data class World(
     val entities: List<Entity>,
