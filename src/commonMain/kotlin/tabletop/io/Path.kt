@@ -1,5 +1,12 @@
 package tabletop.io
 
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.descriptors.PrimitiveKind
+import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
+import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
 import okio.Path.Companion.toPath
 import tabletop.result.*
 import kotlin.jvm.JvmInline
@@ -8,45 +15,80 @@ sealed interface Path {
     val okioPath: okio.Path
 }
 
+@Serializable
 @JvmInline
-value class Directory internal constructor(
+value class DirPath internal constructor(
+    @Serializable(with = OkioPathSerializer::class)
     override val okioPath: okio.Path,
 ) : Path
 
+@Serializable
+data class Directory internal constructor(
+    @Serializable(with = OkioPathSerializer::class)
+    override val okioPath: okio.Path,
+    val contents: List<Path> = emptyList(),
+) : Path {
+    fun dirPath(): DirPath = DirPath(okioPath)
+}
+
+@Serializable
 @JvmInline
 value class File internal constructor(
+    @Serializable(with = OkioPathSerializer::class)
     override val okioPath: okio.Path,
 ) : Path
 
 
+@Serializable
 @JvmInline
 value class TomlFile internal constructor(
+    @Serializable(with = OkioPathSerializer::class)
     override val okioPath: okio.Path,
-): Path {
+) : Path {
     init {
-        require(okioPath.extension.getOrThrow() == "toml")
+        require(okioPath.extension == "toml")
     }
 }
 
+@Serializable
 @JvmInline
 value class RawPath(
+    @Serializable(with = OkioPathSerializer::class)
     override val okioPath: okio.Path,
 ) : Path
 
 fun String.path(): Path = RawPath(this.toPath())
+fun Path.asRaw(): RawPath = RawPath(okioPath)
 
-val Path.extension: Result<String, FileError> get() = when (this) {
-    is Directory -> Err(FileError.FoundDir(this))
-    is File -> okioPath.extension
-    is RawPath -> okioPath.extension
-    is TomlFile -> Ok("toml")
-}
+val Path.extension: String?
+    get() = when (this) {
+        is Directory -> null
+        else -> okioPath.extension
+    }
 
-val okio.Path.extension: Result<String, FileError> get() {
-    val result = segments.last().substringAfterLast(".")
+/**
+ * Get the file extension or return an error if it does not exist
+ */
+fun Path.tryExtension(): FileResult<String> =
+    when (this) {
+        is Directory -> Err(FileError.FoundDir(this))
+        is TomlFile -> Ok("toml")
+        else -> {
+            okioPath.extension.toResult(FileError.NoExtension(this))
+        }
+    }
 
-    return if (result.isBlank())
-        Err(FileError.NoExtension(RawPath(this)))
-    else
-        Ok(result)
+val okio.Path.extension: String?
+    get() =
+        segments.lastOrNull()?.substringAfterLast(".")?.ifBlank { null }
+
+class OkioPathSerializer : KSerializer<okio.Path> {
+    override val descriptor: SerialDescriptor
+        get() = PrimitiveSerialDescriptor("Path", PrimitiveKind.STRING)
+
+    override fun deserialize(decoder: Decoder): okio.Path =
+        decoder.decodeString().toPath()
+
+    override fun serialize(encoder: Encoder, value: okio.Path) =
+        encoder.encodeString(value.name)
 }

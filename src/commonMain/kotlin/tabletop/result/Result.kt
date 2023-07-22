@@ -28,3 +28,19 @@ fun <T, E> Result<T, E>.errOrThrow(): E = when (this) {
     is Err -> error
     is Ok -> throw RuntimeException("expected error, got \"$value\"")
 }
+
+fun <T: Any, E: Any> T?.toResult(err: E): Result<T, E> = when (this) {
+    null -> Err(err)
+    else -> Ok(this)
+}
+
+data class Results<T, E>(
+    val successes: Sequence<T>,
+    val errors: Sequence<E>,
+)
+
+fun <T, E> Sequence<Result<T, E>>.partitionErrors(): Results<T, E> =
+    Results(
+        successes = filter { it is Ok }.map { it.getOrThrow() },
+        errors = filter { it is Err }.map { it.errOrThrow() },
+    )

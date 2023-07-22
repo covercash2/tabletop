@@ -3,7 +3,6 @@ package tabletop.io
 import com.akuleshov7.ktoml.Toml
 import okio.*
 import tabletop.result.*
-import kotlin.jvm.JvmInline
 
 typealias FileResult<T> = Result<T, FileError>
 
@@ -31,6 +30,69 @@ fun FileIo.tryFile(path: Path): FileResult<File> =
             Err(FileError.FileNotFound(path))
     }
 
+fun FileSystem.tryCreateDirs(path: RawPath): FileResult<Directory> =
+    catchIoError(path) {
+        createDirectories(path.okioPath, mustCreate = true)
+    }.andThen {
+        list(path)
+    }
+
+fun FileSystem.tryMetadata(path: Path): FileResult<FileMetadata> =
+    catchIoError(path) {
+        metadata(it)
+    }
+
+fun FileSystem.typePath(path: RawPath): FileResult<Path> =
+    tryMetadata(path)
+        .map {
+            when {
+                it.isDirectory -> DirPath(path.okioPath)
+                it.isRegularFile -> File(path.okioPath)
+                else -> path
+            }
+        }
+
+fun FileSystem.list(path: RawPath): FileResult<Directory> =
+    catchIoError(path) {
+        list(it)
+    }.andThen { paths: List<okio.Path> ->
+        val (contents, errors) = paths.asSequence().map { okPath: okio.Path ->
+            typePath(RawPath(okPath))
+        }.partitionErrors()
+
+        errors.forEach {
+            println("file error: $it")
+        }
+
+        Ok(
+            Directory(
+                okioPath = path.okioPath,
+                contents = contents.toList(),
+            )
+        )
+    }
+
+fun FileIo.tryDir(path: Path, create: Boolean = false): FileResult<Directory> {
+    val metadata = fileSystem.catchIoError(path) {
+        metadata(it)
+    }
+    return when (metadata) {
+        is Ok -> {
+            when {
+                metadata.value.isDirectory -> fileSystem.list(path.asRaw())
+                else -> Err(FileError.ExpectedDir(path))
+            }
+        }
+
+        is Err -> {
+            when {
+                create -> fileSystem.tryCreateDirs(path.asRaw())
+                else -> Err(metadata.error)
+            }
+        }
+    }
+}
+
 fun FileIo.writeString(contents: String, path: Path): Result<File, FileError> =
     useSink(path) {
         writeUtf8(contents)
@@ -53,18 +115,39 @@ inline fun <reified T> FileIo.writeToml(
 fun FileIo.tryTomlFile(path: Path): FileResult<TomlFile> =
     tryFile(path)
         .andThen {
-            it.extension
+            it.tryExtension()
         }.andThen { extension ->
             if (extension == "toml") {
                 Ok(TomlFile(path.okioPath))
             } else {
-                Err(FileError.WrongExtension(
-                    got = extension,
-                    expected = "toml",
-                ))
+                Err(
+                    FileError.WrongExtension(
+                        got = extension,
+                        expected = "toml",
+                    )
+                )
             }
         }
 
+fun FileSystem.tryLoadString(path: Path): FileResult<String> =
+    catchIoError(path) {
+        source(it).buffer().use { source ->
+            source.readUtf8()
+        }
+    }
+
+fun FileIo.tryLoadString(file: File): FileResult<String> =
+    fileSystem.tryLoadString(file)
+
+inline fun <reified T> FileIo.tryLoadToml(
+    file: TomlFile,
+    toml: Toml = Toml,
+): FileResult<T> =
+    fileSystem.tryLoadString(file)
+        .andThen { content ->
+            toml.tryDecodeString<T>(content)
+                .mapErr { FileError.Toml(it) }
+        }
 
 sealed interface FileError {
     data class FileNotFound(val path: Path) : FileError
@@ -73,6 +156,7 @@ sealed interface FileError {
     data class WrongExtension(val got: String, val expected: String) : FileError
     data class NoExtension(val path: Path) : FileError
     data class FoundDir(val path: Path) : FileError
+    data class ExpectedDir(val path: Path) : FileError
 }
 
 internal fun <T> FileSystem.catchIoError(fn: FileSystem.() -> T): FileResult<T> {

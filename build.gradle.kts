@@ -43,6 +43,7 @@ kotlin {
         val commonTest by getting {
             dependencies {
                 implementation(kotlin("test"))
+                implementation("com.squareup.okio:okio-fakefilesystem:3.4.0")
             }
         }
         val jvmMain by getting

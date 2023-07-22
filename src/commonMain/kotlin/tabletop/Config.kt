@@ -1,7 +1,10 @@
 package tabletop
 
+import kotlinx.serialization.Serializable
+import tabletop.io.DirPath
 import tabletop.io.Directory
 
+@Serializable
 data class Config(
-    val creatureDir: Directory,
+    val dataDir: DirPath,
 )
