@@ -1,7 +1,8 @@
 /* (C)2023 */
 package tabletop.io
 
-import com.akuleshov7.ktoml.Toml
+import kotlinx.serialization.StringFormat
+import kotlinx.serialization.json.Json
 import okio.BufferedSink
 import okio.FileMetadata
 import okio.FileNotFoundException
@@ -13,6 +14,7 @@ import tabletop.result.Err
 import tabletop.result.Ok
 import tabletop.result.Result
 import tabletop.result.andThen
+import tabletop.result.falseErr
 import tabletop.result.map
 import tabletop.result.mapErr
 import tabletop.result.partitionErrors
@@ -23,6 +25,7 @@ expect fun fileIo(): FileIo
 
 class FileIo(
     val fileSystem: FileSystem,
+    val serializer: StringFormat = Json,
 )
 
 fun FileIo.useSink(path: Path, writeOp: BufferedSink.() -> Unit): FileResult<Unit> {
@@ -112,61 +115,54 @@ fun FileIo.writeString(contents: String, path: Path): Result<File, FileError> =
         writeUtf8(contents)
     }.andThen { tryFile(path) }
 
-inline fun <reified T> FileIo.writeToml(
+inline fun <reified T> FileIo.writeSerial(
     data: T,
     path: Path,
-    toml: Toml = Toml,
-): FileResult<TomlFile> =
-    toml.tryEncodeString(data)
-        .mapErr { FileError.Toml(it) as FileError }
+): FileResult<File> =
+    serializer.encode(data)
+        .mapErr { FileError.Serialization(it) as FileError }
         .andThen { content ->
             writeString(content, path)
         }
-        .andThen {
-            tryTomlFile(it)
-        }
 
-fun FileIo.tryTomlFile(path: Path): FileResult<TomlFile> =
+fun FileIo.tryTomlFile(path: Path): FileResult<File> =
     tryFile(path)
         .andThen {
             it.tryExtension()
         }.andThen { extension ->
-            if (extension == "toml") {
-                Ok(TomlFile(path.okioPath))
-            } else {
-                Err(
-                    FileError.WrongExtension(
-                        got = extension,
-                        expected = "toml",
-                    ),
-                )
-            }
+            (extension == "toml").falseErr(
+                FileError.WrongExtension(
+                    got = extension,
+                    expected = "toml",
+                ),
+            )
+        }.map {
+            File(path.okioPath)
         }
 
-fun FileSystem.tryLoadString(path: Path): FileResult<String> =
+fun FileSystem.loadString(path: Path): FileResult<String> =
     catchIoError(path) {
         source(it).buffer().use { source ->
             source.readUtf8()
         }
     }
 
-fun FileIo.tryLoadString(file: File): FileResult<String> =
-    fileSystem.tryLoadString(file)
+fun FileIo.loadString(file: File): FileResult<String> =
+    fileSystem.loadString(file)
 
-inline fun <reified T> FileIo.tryLoadToml(
-    file: TomlFile,
-    toml: Toml = Toml,
+inline fun <reified T> FileIo.loadSerial(
+    file: File,
 ): FileResult<T> =
-    fileSystem.tryLoadString(file)
+    fileSystem.loadString(file)
         .andThen { content ->
-            toml.tryDecodeString<T>(content)
-                .mapErr { FileError.Toml(it) }
+            serializer.decode<T>(content)
+                .mapErr { FileError.Serialization(it) }
         }
 
 sealed interface FileError {
     data class FileNotFound(val path: Path) : FileError
     data class OkioException(val exception: IOException) : FileError
-    data class Toml(val error: TomlError) : FileError
+    data class Serialization(val error: SerializationError) : FileError
     data class WrongExtension(val got: String, val expected: String) : FileError
     data class NoExtension(val path: Path) : FileError
     data class FoundDir(val path: Path) : FileError

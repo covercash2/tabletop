@@ -21,27 +21,17 @@ data class Environment(
 )
 
 fun FileIo.loadEnvironment(): FileResult<Environment> {
-    val dirs: List<Directory> = fileSystem.getDirLocations().all
-        .map { path: Path ->
-            tryDir(path)
-        }
-        .toList()
-        .map { result ->
-            result.extract { err ->
-                return Err(err)
-            }
-        }
     val locations = fileSystem.getDirLocations()
 
     val home = tryDir(locations.home)
         .extract {
             return Err(it)
         }
-    val configHome = tryDir(locations.configHome)
+    val configHome = tryDir(locations.configHome, create = true)
         .extract {
             return Err(it)
         }
-    val dataHome = tryDir(locations.dataHome)
+    val dataHome = tryDir(locations.dataHome, create = true)
         .extract {
             return Err(it)
         }

@@ -1,16 +1,18 @@
 /* (C)2023 */
 package tabletop
 
+import kotlinx.serialization.Serializable
 import okio.fakefilesystem.FakeFileSystem
+import tabletop.io.File
 import tabletop.io.FileIo
 import tabletop.io.Path
-import tabletop.io.TomlFile
 import tabletop.io.path
 import tabletop.io.tryDir
 import tabletop.io.tryExtension
-import tabletop.io.writeToml
+import tabletop.io.writeSerial
 import tabletop.result.errOrThrow
 import tabletop.result.getOrThrow
+import kotlin.jvm.JvmInline
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -46,7 +48,7 @@ class FileIoTest {
             maxHitPoints = 10u,
             armorClass = 10u,
         )
-        val statResult: TomlFile = fileIo.writeToml(data, tomlPath).getOrThrow()
+        val statResult: File = fileIo.writeSerial(data, tomlPath).getOrThrow()
 
         val configDirPath = "/test/dir/.config".path()
         val configDir = fileIo.tryDir(configDirPath, create = true).getOrThrow()
@@ -54,6 +56,16 @@ class FileIoTest {
         val config = Config()
 
         val configPath = "config.toml".path()
-        val configResult: TomlFile = fileIo.writeToml(config, configPath).getOrThrow()
+        val configResult: File = fileIo.writeSerial(config, configPath).getOrThrow()
     }
 }
+
+@Serializable
+@JvmInline
+value class Num(val int: Int)
+
+@Serializable
+data class Nums(
+    val num1: Num,
+    val num2: Num,
+)

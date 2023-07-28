@@ -50,6 +50,8 @@ value class TomlFile internal constructor(
     init {
         require(okioPath.extension == "toml")
     }
+
+    fun asFile() = File(okioPath)
 }
 
 @Serializable

@@ -47,6 +47,13 @@ fun <T : Any, E : Any> T?.toResult(err: E): Result<T, E> = when (this) {
     else -> Ok(this)
 }
 
+fun <E : Any> Boolean.falseErr(err: E): Result<Unit, E> =
+    if (this) {
+        Ok(Unit)
+    } else {
+        Err(err)
+    }
+
 data class Results<T, E>(
     val successes: Sequence<T>,
     val errors: Sequence<E>,

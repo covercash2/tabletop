@@ -1,7 +1,7 @@
 import java.time.LocalDate
 
 plugins {
-    val kotlinVersion = "1.8.21"
+    val kotlinVersion = "1.9.0"
     kotlin("multiplatform") version kotlinVersion
     kotlin("plugin.serialization") version kotlinVersion
     id("com.diffplug.spotless") version "6.20.0"
@@ -43,9 +43,11 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1")
                 implementation("com.akuleshov7:ktoml-core:0.5.0")
                 implementation("com.akuleshov7:ktoml-file:0.5.0")
                 implementation("com.squareup.okio:okio:3.4.0")
+                implementation("io.github.quillraven.fleks:Fleks:2.4")
             }
         }
         val commonTest by getting {
