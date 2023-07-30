@@ -4,76 +4,37 @@ package tabletop.stats
 import kotlinx.serialization.Serializable
 import kotlin.jvm.JvmInline
 
-sealed interface Ability
+sealed interface Ability {
+    val value: UInt
+}
 
 @Serializable
 @JvmInline
-value class Acrobatics(val value: UInt) : Ability
+value class Strength(override val value: UInt) : Ability
 
 @Serializable
 @JvmInline
-value class AnimalHandling(val value: UInt) : Ability
+value class Dexterity(override val value: UInt) : Ability
 
 @Serializable
 @JvmInline
-value class Arcana(val value: UInt) : Ability
+value class Constitution(override val value: UInt) : Ability
 
 @Serializable
 @JvmInline
-value class Athletics(val value: UInt) : Ability
+value class Intelligence(override val value: UInt) : Ability
 
 @Serializable
 @JvmInline
-value class Deception(val value: UInt) : Ability
+value class Wisdom(override val value: UInt) : Ability
 
 @Serializable
 @JvmInline
-value class History(val value: UInt) : Ability
+value class Charisma(override val value: UInt) : Ability
 
-@Serializable
-@JvmInline
-value class Insight(val value: UInt) : Ability
-
-@Serializable
-@JvmInline
-value class Intimidation(val value: UInt) : Ability
-
-@Serializable
-@JvmInline
-value class Investigation(val value: UInt) : Ability
-
-@Serializable
-@JvmInline
-value class Medicine(val value: UInt) : Ability
-
-@Serializable
-@JvmInline
-value class Nature(val value: UInt) : Ability
-
-@Serializable
-@JvmInline
-value class Perception(val value: UInt) : Ability
-
-@Serializable
-@JvmInline
-value class Performance(val value: UInt) : Ability
-
-@Serializable
-@JvmInline
-value class Persuasion(val value: UInt) : Ability
-
-@Serializable
-@JvmInline
-value class Religion(val value: UInt) : Ability
-
-@Serializable
-@JvmInline
-value class SleightOfHand(val value: UInt) : Ability
-
-@Serializable
-@JvmInline
-value class Stealth(val value: UInt) : Ability
-
-@Serializable
-@JvmInline
-value class Survival(val value: UInt) : Ability
+/**
+ * To determine an ability modifier without consulting the table,
+ * subtract 10 from the ability score and then divide the total by 2 (round down).
+ * See: https://roll20.net/compendium/dnd5e/Ability%20Scores#content
+ */
+fun Ability.modifier(): Int = (value.toInt() - 10).floorDiv(2)

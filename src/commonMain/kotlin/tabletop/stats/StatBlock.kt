@@ -14,7 +14,7 @@ data class StatBlock(
     val wisdom: Wisdom,
     val charisma: Charisma,
 ) : Component<StatBlock> {
-    val all: List<Stat> = listOf(
+    val all: List<Ability> = listOf(
         strength,
         dexterity,
         constitution,

@@ -5,7 +5,7 @@ import tabletop.stats.Charisma
 import tabletop.stats.Constitution
 import tabletop.stats.Dexterity
 import tabletop.stats.Intelligence
-import tabletop.stats.Stat
+import tabletop.stats.Ability
 import tabletop.stats.Strength
 import tabletop.stats.Wisdom
 import tabletop.stats.modifier
@@ -13,7 +13,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class AbilitiesTest {
-    fun testModifier(ability: Stat, expectedModifier: Int) {
+    fun testModifier(ability: Ability, expectedModifier: Int) {
         val modifier = ability.modifier()
 
         assertEquals(expectedModifier, modifier)
