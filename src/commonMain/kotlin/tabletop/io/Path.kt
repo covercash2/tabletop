@@ -10,7 +10,6 @@ import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import okio.Path.Companion.toPath
 import tabletop.result.Err
-import tabletop.result.Ok
 import tabletop.result.toResult
 import kotlin.jvm.JvmInline
 
@@ -43,19 +42,6 @@ value class File internal constructor(
 
 @Serializable
 @JvmInline
-value class TomlFile internal constructor(
-    @Serializable(with = OkioPathSerializer::class)
-    override val okioPath: okio.Path,
-) : Path {
-    init {
-        require(okioPath.extension == "toml")
-    }
-
-    fun asFile() = File(okioPath)
-}
-
-@Serializable
-@JvmInline
 value class RawPath(
     @Serializable(with = OkioPathSerializer::class)
     override val okioPath: okio.Path,
@@ -80,7 +66,6 @@ val Path.extension: String?
 fun Path.tryExtension(): FileResult<String> =
     when (this) {
         is Directory -> Err(FileError.FoundDir(this))
-        is TomlFile -> Ok("toml")
         else -> {
             okioPath.extension.toResult(FileError.NoExtension(this))
         }

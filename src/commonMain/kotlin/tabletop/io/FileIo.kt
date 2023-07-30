@@ -14,7 +14,6 @@ import tabletop.result.Err
 import tabletop.result.Ok
 import tabletop.result.Result
 import tabletop.result.andThen
-import tabletop.result.falseErr
 import tabletop.result.map
 import tabletop.result.mapErr
 import tabletop.result.partitionErrors
@@ -123,21 +122,6 @@ inline fun <reified T> FileIo.writeSerial(
         .mapErr { FileError.Serialization(it) as FileError }
         .andThen { content ->
             writeString(content, path)
-        }
-
-fun FileIo.tryTomlFile(path: Path): FileResult<File> =
-    tryFile(path)
-        .andThen {
-            it.tryExtension()
-        }.andThen { extension ->
-            (extension == "toml").falseErr(
-                FileError.WrongExtension(
-                    got = extension,
-                    expected = "toml",
-                ),
-            )
-        }.map {
-            File(path.okioPath)
         }
 
 fun FileSystem.loadString(path: Path): FileResult<String> =
