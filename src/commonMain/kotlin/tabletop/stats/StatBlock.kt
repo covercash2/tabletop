@@ -14,6 +14,15 @@ data class StatBlock(
     val wisdom: Wisdom,
     val charisma: Charisma,
 ) : Component<StatBlock> {
+    val all: List<Stat> = listOf(
+        strength,
+        dexterity,
+        constitution,
+        intelligence,
+        wisdom,
+        charisma,
+    )
+
     override fun type(): ComponentType<StatBlock> = StatBlock
 
     companion object : ComponentType<StatBlock>()

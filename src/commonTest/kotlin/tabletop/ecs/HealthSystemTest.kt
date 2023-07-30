@@ -3,6 +3,8 @@ package tabletop.ecs
 
 import com.github.quillraven.fleks.World
 import com.github.quillraven.fleks.configureWorld
+import tabletop.damage.Damage
+import tabletop.damage.TakeDamageSystem
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull

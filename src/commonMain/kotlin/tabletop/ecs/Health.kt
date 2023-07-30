@@ -7,6 +7,7 @@ import com.github.quillraven.fleks.Entity
 import com.github.quillraven.fleks.IteratingSystem
 import com.github.quillraven.fleks.World.Companion.family
 import kotlinx.serialization.Serializable
+import tabletop.damage.Damage
 
 @Serializable
 data class Health(
