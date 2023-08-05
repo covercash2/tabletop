@@ -3,17 +3,17 @@ package tabletop.abilities
 
 import com.github.quillraven.fleks.World
 import com.github.quillraven.fleks.configureWorld
-import tabletop.FakeRandom
-import tabletop.log.ConsoleLogSystem
-import tabletop.log.KotlinStdoutLogger
+import tabletop.log.CheckLog
 import tabletop.log.Log
-import tabletop.log.Logger
+import tabletop.result.Ok
 import tabletop.roll.DiceRoller
 import tabletop.stats.AbilityCheck
 import tabletop.stats.AbilityCheckSystem
 import tabletop.stats.AbilityType
+import tabletop.stats.CheckResult
 import tabletop.stats.StatBlock
 import tabletop.stats.trivialStatBlock
+import kotlin.random.Random
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
@@ -21,11 +21,10 @@ import kotlin.test.assertNull
 class AbilityCheckTest {
     @Test
     fun `AbilityCheckSystem happy path`() {
-        val diceRollResult = 10
+        val diceRollResult = 15u
         val world = configureWorld {
             injectables {
-                add(DiceRoller(FakeRandom(expectedInt = diceRollResult)))
-                add(KotlinStdoutLogger() as Logger)
+                add(DiceRoller(Random(0)))
             }
             families {
                 val abilityCheckFamily = World.family {
@@ -35,7 +34,6 @@ class AbilityCheckTest {
 
             systems {
                 add(AbilityCheckSystem())
-                add(ConsoleLogSystem())
             }
         }
 
@@ -64,11 +62,17 @@ class AbilityCheckTest {
 
         val updatedComponents = world.snapshot()[entity]!!
 
-        val updatedStatBlock = updatedComponents.find { it is StatBlock }!!
-        val updatedAbilityCheck = updatedComponents.find { it is AbilityCheck }
-        val logComponent = updatedComponents.find { it is Log }!!
+        val updatedStatBlock = updatedComponents.find { it.type() == StatBlock }!!
+        val updatedAbilityCheck = updatedComponents.find { it.type() == AbilityCheck }
+        val logComponent: CheckLog = updatedComponents.find { it.type() == Log.CheckLog }!! as CheckLog
 
         assertNull(updatedAbilityCheck)
         assertEquals(statBlock, updatedStatBlock)
+
+        val expectedResult: CheckResult = Ok(diceRollResult.toInt())
+
+        assertEquals(abilityCheck, logComponent.check)
+        assertEquals(diceRollResult, logComponent.roll)
+        assertEquals(expectedResult, logComponent.result)
     }
 }

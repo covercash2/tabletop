@@ -15,7 +15,10 @@ import tabletop.log.Log
 import tabletop.log.LogVisibility
 import tabletop.result.Err
 import tabletop.result.Ok
+import tabletop.result.Result
 import tabletop.roll.DiceRoller
+
+typealias CheckResult = Result<Int, Int>
 
 @Serializable
 data class AbilityCheck(
@@ -36,27 +39,38 @@ class AbilityCheckSystem(
         val statBlock = entity[StatBlock]
         val abilityCheck = entity[AbilityCheck]
 
-        val statValue = statBlock.getValueByAbilityType(abilityCheck.abilityType)
         val roll = diceRoller.d20()
-        val checkValue = statValue + roll
+        val result = statBlock.abilityCheck(
+            roll = roll,
+            difficultyClass = abilityCheck.difficultyClass,
+            abilityType = abilityCheck.abilityType,
+        )
 
-        val log: Log = if (checkValue < abilityCheck.difficultyClass) {
-            CheckLog(
-                check = abilityCheck,
-                result = Err(checkValue),
-                visibility = LogVisibility.Public,
-            )
-        } else {
-            CheckLog(
-                check = abilityCheck,
-                result = Ok(checkValue),
-                visibility = LogVisibility.Public,
-            )
-        }
+        val log: Log = CheckLog(
+            check = abilityCheck,
+            roll = roll,
+            result = result,
+            visibility = LogVisibility.Public,
+        )
 
         entity.configure {
             it -= AbilityCheck
             it += log
         }
+    }
+}
+
+fun StatBlock.abilityCheck(
+    roll: UInt,
+    difficultyClass: UInt,
+    abilityType: AbilityType,
+): CheckResult {
+    val modifier = getModifierFor(abilityType)
+    val result = roll.toInt() + modifier
+
+    return if (result < difficultyClass.toInt()) {
+        Err(result)
+    } else {
+        Ok(result)
     }
 }

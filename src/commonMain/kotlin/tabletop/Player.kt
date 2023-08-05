@@ -2,6 +2,7 @@
 package tabletop
 
 import kotlinx.serialization.Serializable
+import tabletop.stats.StatBlock
 
 @Serializable
 data class Player(

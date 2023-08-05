@@ -45,11 +45,12 @@ data class ConsoleLog(
 @Serializable
 data class CheckLog(
     val check: AbilityCheck,
-    val result: Result<UInt, UInt>,
+    val roll: UInt,
+    val result: Result<Int, Int>,
     val visibility: LogVisibility,
     val timestamp: Instant = Clock.System.now(),
 ) : Log() {
-    override fun withEntity(entity: Entity?): String = "${timestamp.defaultString()} $result $check"
+    override fun withEntity(entity: Entity?): String = "${timestamp.defaultString()} $result $check roll: $roll"
 }
 
 fun Instant.defaultString(): String = "[${toLocalDateTime(TimeZone.currentSystemDefault())}]"

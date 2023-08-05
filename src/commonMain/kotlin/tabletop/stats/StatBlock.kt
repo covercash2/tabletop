@@ -7,25 +7,29 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class StatBlock(
-    val strength: Strength,
-    val dexterity: Dexterity,
-    val constitution: Constitution,
-    val intelligence: Intelligence,
-    val wisdom: Wisdom,
-    val charisma: Charisma,
-    val proficiencies: Set<Proficiency> = emptySet(),
+    val strength: UInt,
+    val dexterity: UInt,
+    val constitution: UInt,
+    val intelligence: UInt,
+    val wisdom: UInt,
+    val charisma: UInt,
+    val proficiencies: Set<AbilityType> = emptySet(),
 ) : Component<StatBlock> {
-    val all: List<AbilityInterface> = listOf(
-        strength,
-        dexterity,
-        constitution,
-        intelligence,
-        wisdom,
-        charisma,
+    val all: Map<AbilityType, UInt> = mapOf(
+        AbilityType.Strength to strength,
+        AbilityType.Dexterity to dexterity,
+        AbilityType.Constitution to constitution,
+        AbilityType.Intelligence to intelligence,
+        AbilityType.Wisdom to wisdom,
+        AbilityType.Charisma to charisma,
     )
 
-    fun getValueByAbilityType(abilityType: AbilityType): UInt {
-        return all.find { it.abilityType == abilityType }!!.value
+    val baseArmorClass: UInt by lazy {
+        (10 + dexterity.abilityModifier()).toUInt()
+    }
+
+    fun getModifierFor(abilityType: AbilityType): Int {
+        return all[abilityType]!!.abilityModifier()
     }
 
     override fun type(): ComponentType<StatBlock> = StatBlock
@@ -34,10 +38,17 @@ data class StatBlock(
 }
 
 fun trivialStatBlock() = StatBlock(
-    strength = Strength(10u),
-    dexterity = Dexterity(10u),
-    constitution = Constitution(10u),
-    wisdom = Wisdom(10u),
-    intelligence = Intelligence(10u),
-    charisma = Charisma(10u),
+    strength = 10u,
+    dexterity = 10u,
+    constitution = 10u,
+    wisdom = 10u,
+    intelligence = 10u,
+    charisma = 10u,
 )
+
+/**
+ * To determine an ability modifier without consulting the table,
+ * subtract 10 from the ability score and then divide the total by 2 (round down).
+ * See: https://roll20.net/compendium/dnd5e/Ability%20Scores#content
+ */
+fun UInt.abilityModifier(): Int = (toInt() - 10).floorDiv(2)

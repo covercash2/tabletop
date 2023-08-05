@@ -6,13 +6,7 @@ import org.junit.jupiter.api.Test
 import tabletop.getDirLocations
 import tabletop.loadEnvironment
 import tabletop.result.getOrThrow
-import tabletop.stats.Charisma
-import tabletop.stats.Constitution
-import tabletop.stats.Dexterity
-import tabletop.stats.Intelligence
 import tabletop.stats.StatBlock
-import tabletop.stats.Strength
-import tabletop.stats.Wisdom
 import kotlin.test.BeforeTest
 import kotlin.test.assertEquals
 
@@ -29,12 +23,12 @@ class FileIoTest {
     @Test
     fun test() {
         val stats = StatBlock(
-            strength = Strength(10u),
-            dexterity = Dexterity(10u),
-            constitution = Constitution(10u),
-            wisdom = Wisdom(10u),
-            intelligence = Intelligence(10u),
-            charisma = Charisma(10u),
+            strength = 10u,
+            dexterity = 10u,
+            constitution = 10u,
+            wisdom = 10u,
+            intelligence = 10u,
+            charisma = 10u,
         )
 
         val environment = fileIo.loadEnvironment().getOrThrow()

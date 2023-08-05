@@ -5,13 +5,12 @@ import com.github.quillraven.fleks.Component
 import com.github.quillraven.fleks.ComponentType
 import com.github.quillraven.fleks.componentTypeOf
 import kotlinx.serialization.Serializable
-import kotlin.jvm.JvmInline
 
 @Serializable
-data class Ability(
-    val value: UInt,
-    val type: AbilityType,
-) : Component<Ability> {
+sealed class Ability : Component<Ability> {
+    abstract val value: UInt
+    abstract val type: AbilityType
+
     override fun type(): ComponentType<Ability> = when (type) {
         AbilityType.Strength -> Strength
         AbilityType.Dexterity -> Dexterity
@@ -31,50 +30,39 @@ data class Ability(
     }
 }
 
-sealed interface AbilityInterface {
-    val value: UInt
-    val abilityType: AbilityType
-}
-
 @Serializable
-@JvmInline
-value class Strength(override val value: UInt) : AbilityInterface {
-    override val abilityType: AbilityType
+data class Strength(override val value: UInt) : Ability() {
+    override val type: AbilityType
         get() = AbilityType.Strength
 }
 
 @Serializable
-@JvmInline
-value class Dexterity(override val value: UInt) : AbilityInterface {
-    override val abilityType: AbilityType
+data class Dexterity(override val value: UInt) : Ability() {
+    override val type: AbilityType
         get() = AbilityType.Dexterity
 }
 
 @Serializable
-@JvmInline
-value class Constitution(override val value: UInt) : AbilityInterface {
-    override val abilityType: AbilityType
+data class Constitution(override val value: UInt) : Ability() {
+    override val type: AbilityType
         get() = AbilityType.Constitution
 }
 
 @Serializable
-@JvmInline
-value class Intelligence(override val value: UInt) : AbilityInterface {
-    override val abilityType: AbilityType
+data class Intelligence(override val value: UInt) : Ability() {
+    override val type: AbilityType
         get() = AbilityType.Intelligence
 }
 
 @Serializable
-@JvmInline
-value class Wisdom(override val value: UInt) : AbilityInterface {
-    override val abilityType: AbilityType
+data class Wisdom(override val value: UInt) : Ability() {
+    override val type: AbilityType
         get() = AbilityType.Wisdom
 }
 
 @Serializable
-@JvmInline
-value class Charisma(override val value: UInt) : AbilityInterface {
-    override val abilityType: AbilityType
+data class Charisma(override val value: UInt) : Ability() {
+    override val type: AbilityType
         get() = AbilityType.Charisma
 }
 
@@ -83,4 +71,4 @@ value class Charisma(override val value: UInt) : AbilityInterface {
  * subtract 10 from the ability score and then divide the total by 2 (round down).
  * See: https://roll20.net/compendium/dnd5e/Ability%20Scores#content
  */
-fun AbilityInterface.modifier(): Int = (value.toInt() - 10).floorDiv(2)
+fun Ability.modifier(): Int = (value.toInt() - 10).floorDiv(2)
