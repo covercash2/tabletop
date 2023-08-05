@@ -23,6 +23,7 @@ class FileIoTest {
     @Test
     fun test() {
         val stats = StatBlock(
+            level = 1u,
             strength = 10u,
             dexterity = 10u,
             constitution = 10u,

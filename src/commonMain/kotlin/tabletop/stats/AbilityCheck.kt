@@ -7,6 +7,7 @@ import com.github.quillraven.fleks.Entity
 import com.github.quillraven.fleks.IteratingSystem
 import com.github.quillraven.fleks.World.Companion.family
 import com.github.quillraven.fleks.World.Companion.inject
+import com.github.quillraven.fleks.componentTypeOf
 import kotlinx.serialization.Serializable
 import tabletop.damage.Dead
 import tabletop.damage.Down
@@ -21,23 +22,38 @@ import tabletop.roll.DiceRoller
 typealias CheckResult = Result<Int, Int>
 
 @Serializable
-data class AbilityCheck(
-    val difficultyClass: UInt,
-    val abilityType: AbilityType,
-) : Component<AbilityCheck> {
-    override fun type(): ComponentType<AbilityCheck> = AbilityCheck
+sealed class AbilityCheck : Component<AbilityCheck> {
+    abstract val difficultyClass: UInt
 
-    companion object : ComponentType<AbilityCheck>()
+    override fun type(): ComponentType<AbilityCheck> = when (this) {
+        is SavingThrow -> SavingThrow
+        is StraightCheck -> StraightCheck
+    }
+
+    companion object {
+        val StraightCheck = componentTypeOf<AbilityCheck>()
+        val SavingThrow = componentTypeOf<AbilityCheck>()
+    }
 }
+
+data class StraightCheck(
+    val abilityType: AbilityType,
+    override val difficultyClass: UInt,
+) : AbilityCheck()
+
+data class SavingThrow(
+    val abilityType: AbilityType,
+    override val difficultyClass: UInt,
+) : AbilityCheck()
 
 class AbilityCheckSystem(
     private val diceRoller: DiceRoller = inject(),
 ) : IteratingSystem(
-    family { all(AbilityCheck, StatBlock).none(Dead, Down) },
+    family { all(AbilityCheck.StraightCheck, StatBlock).none(Dead, Down) },
 ) {
     override fun onTickEntity(entity: Entity) {
         val statBlock = entity[StatBlock]
-        val abilityCheck = entity[AbilityCheck]
+        val abilityCheck: StraightCheck = entity[AbilityCheck.StraightCheck] as StraightCheck
 
         val roll = diceRoller.d20()
         val result = statBlock.abilityCheck(
@@ -54,7 +70,7 @@ class AbilityCheckSystem(
         )
 
         entity.configure {
-            it -= AbilityCheck
+            it -= abilityCheck.type()
             it += log
         }
     }

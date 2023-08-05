@@ -32,7 +32,7 @@ fun getWorld(): World = configureWorld(entityCapacity = 1000) {
             all(Health, Damage).none(Dead, Down)
         }
         val abilityCheckFamily = family {
-            all(AbilityCheck, StatBlock).none(Dead, Down)
+            all(AbilityCheck.StraightCheck, StatBlock).none(Dead, Down)
         }
     }
 

@@ -7,6 +7,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class StatBlock(
+    val level: UInt,
     val strength: UInt,
     val dexterity: UInt,
     val constitution: UInt,
@@ -28,6 +29,10 @@ data class StatBlock(
         (10 + dexterity.abilityModifier()).toUInt()
     }
 
+    val baseProficiencyBonus: UInt by lazy {
+        level.plus(1u).floorDiv(4u).plus(2u)
+    }
+
     fun getModifierFor(abilityType: AbilityType): Int {
         return all[abilityType]!!.abilityModifier()
     }
@@ -37,13 +42,17 @@ data class StatBlock(
     companion object : ComponentType<StatBlock>()
 }
 
-fun trivialStatBlock() = StatBlock(
+fun trivialStatBlock(
+    proficiencies: Set<AbilityType> = emptySet(),
+) = StatBlock(
+    level = 1u,
     strength = 10u,
     dexterity = 10u,
     constitution = 10u,
     wisdom = 10u,
     intelligence = 10u,
     charisma = 10u,
+    proficiencies = proficiencies,
 )
 
 /**
