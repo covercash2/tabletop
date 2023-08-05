@@ -26,7 +26,7 @@ class ConsoleLogSystem(
         logger.log(log, entity)
 
         entity.configure {
-            it -= Log.ConsoleLog
+            it -= log.type()
         }
     }
 }

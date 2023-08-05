@@ -25,7 +25,7 @@ class LogTest {
             }
             families {
                 val logFamily = World.family {
-                    all(Log.ConsoleLog)
+                    any(Log.ConsoleLog, Log.CheckLog)
                 }
             }
             systems {
