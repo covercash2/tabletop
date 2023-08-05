@@ -13,8 +13,9 @@ data class StatBlock(
     val intelligence: Intelligence,
     val wisdom: Wisdom,
     val charisma: Charisma,
+    val proficiencies: Set<Proficiency> = emptySet(),
 ) : Component<StatBlock> {
-    val all: List<Ability> = listOf(
+    val all: List<AbilityInterface> = listOf(
         strength,
         dexterity,
         constitution,
@@ -23,7 +24,20 @@ data class StatBlock(
         charisma,
     )
 
+    fun getValueByAbilityType(abilityType: AbilityType): UInt {
+        return all.find { it.abilityType == abilityType }!!.value
+    }
+
     override fun type(): ComponentType<StatBlock> = StatBlock
 
     companion object : ComponentType<StatBlock>()
 }
+
+fun trivialStatBlock() = StatBlock(
+    strength = Strength(10u),
+    dexterity = Dexterity(10u),
+    constitution = Constitution(10u),
+    wisdom = Wisdom(10u),
+    intelligence = Intelligence(10u),
+    charisma = Charisma(10u),
+)

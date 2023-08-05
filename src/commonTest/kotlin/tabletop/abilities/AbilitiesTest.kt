@@ -1,11 +1,11 @@
 /* (C)2023 */
 package tabletop.abilities
 
+import tabletop.stats.AbilityInterface
 import tabletop.stats.Charisma
 import tabletop.stats.Constitution
 import tabletop.stats.Dexterity
 import tabletop.stats.Intelligence
-import tabletop.stats.Ability
 import tabletop.stats.Strength
 import tabletop.stats.Wisdom
 import tabletop.stats.modifier
@@ -13,8 +13,8 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class AbilitiesTest {
-    fun testModifier(ability: Ability, expectedModifier: Int) {
-        val modifier = ability.modifier()
+    fun testModifier(abilityInterface: AbilityInterface, expectedModifier: Int) {
+        val modifier = abilityInterface.modifier()
 
         assertEquals(expectedModifier, modifier)
     }
