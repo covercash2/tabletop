@@ -28,21 +28,28 @@ sealed class AbilityCheck : Component<AbilityCheck> {
     override fun type(): ComponentType<AbilityCheck> = when (this) {
         is SavingThrow -> SavingThrow
         is StraightCheck -> StraightCheck
+        is SkillCheck -> SkillCheck
     }
 
     companion object {
         val StraightCheck = componentTypeOf<AbilityCheck>()
         val SavingThrow = componentTypeOf<AbilityCheck>()
+        val SkillCheck = componentTypeOf<AbilityCheck>()
     }
 }
 
 data class StraightCheck(
-    val abilityType: AbilityType,
+    val ability: Ability,
     override val difficultyClass: UInt,
 ) : AbilityCheck()
 
 data class SavingThrow(
-    val abilityType: AbilityType,
+    val ability: Ability,
+    override val difficultyClass: UInt,
+) : AbilityCheck()
+
+data class SkillCheck(
+    val skill: Skill,
     override val difficultyClass: UInt,
 ) : AbilityCheck()
 
@@ -59,7 +66,7 @@ class AbilityCheckSystem(
         val result = statBlock.abilityCheck(
             roll = roll,
             difficultyClass = abilityCheck.difficultyClass,
-            abilityType = abilityCheck.abilityType,
+            ability = abilityCheck.ability,
         )
 
         val log: Log = CheckLog(
@@ -79,9 +86,9 @@ class AbilityCheckSystem(
 fun StatBlock.abilityCheck(
     roll: UInt,
     difficultyClass: UInt,
-    abilityType: AbilityType,
+    ability: Ability,
 ): CheckResult {
-    val modifier = getModifierFor(abilityType)
+    val modifier = getModifierFor(ability)
     val result = roll.toInt() + modifier
 
     return if (result < difficultyClass.toInt()) {

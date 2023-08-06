@@ -4,6 +4,7 @@ package tabletop.stats
 import com.github.quillraven.fleks.Entity
 import com.github.quillraven.fleks.IteratingSystem
 import com.github.quillraven.fleks.World
+import com.github.quillraven.fleks.World.Companion.family
 import tabletop.damage.Dead
 import tabletop.damage.Down
 import tabletop.log.CheckLog
@@ -13,49 +14,50 @@ import tabletop.result.Err
 import tabletop.result.Ok
 import tabletop.roll.DiceRoller
 
-class SavingThrowSystem(
+class SkillCheckSystem(
     private val diceRoller: DiceRoller = World.inject(),
 ) : IteratingSystem(
-    World.family { all(AbilityCheck.SavingThrow, StatBlock).none(Dead, Down) },
+    family { all(AbilityCheck.SkillCheck, StatBlock).none(Dead, Down) },
 ) {
     override fun onTickEntity(entity: Entity) {
         val statBlock = entity[StatBlock]
-        val abilityCheck: SavingThrow = entity[AbilityCheck.SavingThrow] as SavingThrow
+        val skillCheck: SkillCheck = entity[AbilityCheck.SkillCheck] as SkillCheck
 
         val roll = diceRoller.d20()
-        val result = statBlock.savingThrow(
+        val result = statBlock.skillCheck(
             roll = roll,
-            difficultyClass = abilityCheck.difficultyClass,
-            ability = abilityCheck.ability,
+            difficultyClass = skillCheck.difficultyClass,
+            skill = skillCheck.skill,
         )
 
         val log: Log = CheckLog(
-            check = abilityCheck,
+            check = skillCheck,
             roll = roll,
             result = result,
             visibility = LogVisibility.Public,
         )
 
         entity.configure {
-            it -= abilityCheck.type()
+            it -= skillCheck.type()
             it += log
         }
     }
 }
 
-fun StatBlock.savingThrow(
+fun StatBlock.skillCheck(
     roll: UInt,
     difficultyClass: UInt,
-    ability: Ability,
+    skill: Skill,
 ): CheckResult {
-    val hasProficiency = proficiencies.contains(ability)
+    val hasProficiency = proficiencies.contains(skill)
     val bonus = if (hasProficiency) {
         baseProficiencyBonus.toInt()
     } else {
         0
     }
 
-    val check = getModifierFor(ability) + bonus + roll.toInt()
+    val abilityModifier = getModifierFor(skill.ability)
+    val check = abilityModifier + bonus + roll.toInt()
 
     return if (check < difficultyClass.toInt()) {
         Err(check)

@@ -1,3 +1,4 @@
+/* (C)2023 */
 package tabletop.abilities
 
 import com.github.quillraven.fleks.World
@@ -9,13 +10,11 @@ import tabletop.log.Log
 import tabletop.result.Ok
 import tabletop.roll.DiceRoller
 import tabletop.stats.AbilityCheck
-import tabletop.stats.AbilityCheckSystem
-import tabletop.stats.AbilityType
 import tabletop.stats.CheckResult
 import tabletop.stats.SavingThrow
 import tabletop.stats.SavingThrowSystem
 import tabletop.stats.StatBlock
-import tabletop.stats.StraightCheck
+import tabletop.stats.Strength
 import tabletop.stats.trivialStatBlock
 import kotlin.random.Random
 import kotlin.test.Test
@@ -41,14 +40,14 @@ class SavingThrowTest {
             }
         }
 
-        val abilityType = AbilityType.Strength
+        val ability = Strength
 
         val statBlock = trivialStatBlock(
-            proficiencies = setOf(abilityType)
+            proficiencies = setOf(ability),
         )
         val abilityCheck = SavingThrow(
             difficultyClass = 15u,
-            abilityType = abilityType,
+            ability = ability,
         )
 
         val entity = world.entity {

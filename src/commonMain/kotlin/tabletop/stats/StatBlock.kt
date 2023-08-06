@@ -14,15 +14,15 @@ data class StatBlock(
     val intelligence: UInt,
     val wisdom: UInt,
     val charisma: UInt,
-    val proficiencies: Set<AbilityType> = emptySet(),
+    val proficiencies: Set<Proficiency> = emptySet(),
 ) : Component<StatBlock> {
-    val all: Map<AbilityType, UInt> = mapOf(
-        AbilityType.Strength to strength,
-        AbilityType.Dexterity to dexterity,
-        AbilityType.Constitution to constitution,
-        AbilityType.Intelligence to intelligence,
-        AbilityType.Wisdom to wisdom,
-        AbilityType.Charisma to charisma,
+    val all: Map<Ability, UInt> = mapOf(
+        Strength to strength,
+        Dexterity to dexterity,
+        Constitution to constitution,
+        Intelligence to intelligence,
+        Wisdom to wisdom,
+        Charisma to charisma,
     )
 
     val baseArmorClass: UInt by lazy {
@@ -33,8 +33,8 @@ data class StatBlock(
         level.plus(1u).floorDiv(4u).plus(2u)
     }
 
-    fun getModifierFor(abilityType: AbilityType): Int {
-        return all[abilityType]!!.abilityModifier()
+    fun getModifierFor(ability: Ability): Int {
+        return all[ability]!!.abilityModifier()
     }
 
     override fun type(): ComponentType<StatBlock> = StatBlock
@@ -43,7 +43,7 @@ data class StatBlock(
 }
 
 fun trivialStatBlock(
-    proficiencies: Set<AbilityType> = emptySet(),
+    proficiencies: Set<Proficiency> = emptySet(),
 ) = StatBlock(
     level = 1u,
     strength = 10u,
