@@ -8,7 +8,7 @@ import tabletop.damage.Down
 import tabletop.log.CheckLog
 import tabletop.log.Log
 import tabletop.result.Ok
-import tabletop.roll.DiceRoller
+import tabletop.roll.RandomDieRoller
 import tabletop.stats.AbilityCheck
 import tabletop.stats.Acrobatics
 import tabletop.stats.CheckResult
@@ -27,7 +27,7 @@ class SkillCheckTest {
         val diceRollResult = 15u
         val world = configureWorld {
             injectables {
-                add(DiceRoller(Random(0)))
+                add(RandomDieRoller(Random(0)))
             }
             families {
                 val abilityCheckFamily = World.family {

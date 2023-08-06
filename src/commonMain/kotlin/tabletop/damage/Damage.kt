@@ -7,12 +7,42 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class Damage(
-    val amount: UInt,
+    val damage: List<TypedDamage>,
 ) : Component<Damage> {
+    val amount: UInt by lazy {
+        damage.fold(0u) { acc, damage -> acc + damage.amount }
+    }
+
     override fun type(): ComponentType<Damage> = Damage
 
     companion object : ComponentType<Damage>()
 }
+
+@Serializable
+data class TypedDamage(
+    val amount: UInt,
+    val type: DamageType,
+)
+
+sealed interface DamageType
+
+data object Bludgeoning : DamageType
+data object Piercing : DamageType
+data object Slashing : DamageType
+
+data object Acid : DamageType
+data object Poison : DamageType
+
+data object Cold : DamageType
+data object Fire : DamageType
+data object Lightning : DamageType
+data object Thunder : DamageType
+
+data object Force : DamageType
+data object Psychic : DamageType
+
+data object Necrotic : DamageType
+data object Radiant : DamageType
 
 @Serializable
 data class Down(

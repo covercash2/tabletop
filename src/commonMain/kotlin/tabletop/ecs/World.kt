@@ -12,7 +12,8 @@ import tabletop.damage.TakeDamageSystem
 import tabletop.log.ConsoleLogSystem
 import tabletop.log.KotlinStdoutLogger
 import tabletop.log.Logger
-import tabletop.roll.DiceRoller
+import tabletop.roll.DieRoller
+import tabletop.roll.RandomDieRoller
 import tabletop.stats.AbilityCheck
 import tabletop.stats.AbilityCheckSystem
 import tabletop.stats.StatBlock
@@ -21,7 +22,9 @@ import kotlin.random.Random
 fun getWorld(): World = configureWorld(entityCapacity = 1000) {
     injectables {
         add(KotlinStdoutLogger() as Logger)
-        add(DiceRoller(Random.Default))
+        add(
+            RandomDieRoller(Random.Default) as DieRoller,
+        )
     }
 
     families {

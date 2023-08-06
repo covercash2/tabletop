@@ -2,6 +2,7 @@
 package tabletop.creature
 
 import kotlinx.serialization.Serializable
+import tabletop.equipment.Equipment
 import tabletop.stats.Health
 import tabletop.stats.StatBlock
 
@@ -16,6 +17,7 @@ sealed interface Creature {
 @Serializable
 data class Character(
     val name: Name,
+    val equipment: Equipment,
     override val health: Health,
     override val stats: StatBlock,
 ) : Creature

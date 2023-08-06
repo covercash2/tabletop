@@ -3,8 +3,10 @@ package tabletop.ecs
 
 import com.github.quillraven.fleks.World
 import com.github.quillraven.fleks.configureWorld
+import tabletop.damage.Bludgeoning
 import tabletop.damage.Damage
 import tabletop.damage.TakeDamageSystem
+import tabletop.damage.TypedDamage
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
@@ -25,7 +27,14 @@ class HealthSystemTest {
         }
 
         val initialHealth = Health(10, 10u)
-        val initialDamage = Damage(5u)
+        val initialDamage = Damage(
+            listOf(
+                TypedDamage(
+                    amount = 5u,
+                    type = Bludgeoning,
+                ),
+            ),
+        )
 
         val entity = world.entity {
             it += initialHealth

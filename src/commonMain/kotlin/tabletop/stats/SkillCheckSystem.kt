@@ -3,8 +3,8 @@ package tabletop.stats
 
 import com.github.quillraven.fleks.Entity
 import com.github.quillraven.fleks.IteratingSystem
-import com.github.quillraven.fleks.World
 import com.github.quillraven.fleks.World.Companion.family
+import com.github.quillraven.fleks.World.Companion.inject
 import tabletop.damage.Dead
 import tabletop.damage.Down
 import tabletop.log.CheckLog
@@ -12,10 +12,11 @@ import tabletop.log.Log
 import tabletop.log.LogVisibility
 import tabletop.result.Err
 import tabletop.result.Ok
-import tabletop.roll.DiceRoller
+import tabletop.roll.DieRoller
+import tabletop.roll.d20
 
 class SkillCheckSystem(
-    private val diceRoller: DiceRoller = World.inject(),
+    private val diceRoller: DieRoller = inject(),
 ) : IteratingSystem(
     family { all(AbilityCheck.SkillCheck, StatBlock).none(Dead, Down) },
 ) {

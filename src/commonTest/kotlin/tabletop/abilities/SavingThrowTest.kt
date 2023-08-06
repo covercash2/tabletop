@@ -8,7 +8,8 @@ import tabletop.damage.Down
 import tabletop.log.CheckLog
 import tabletop.log.Log
 import tabletop.result.Ok
-import tabletop.roll.DiceRoller
+import tabletop.roll.DieRoller
+import tabletop.roll.RandomDieRoller
 import tabletop.stats.AbilityCheck
 import tabletop.stats.CheckResult
 import tabletop.stats.SavingThrow
@@ -27,7 +28,9 @@ class SavingThrowTest {
         val diceRollResult = 15u
         val world = configureWorld {
             injectables {
-                add(DiceRoller(Random(0)))
+                add(
+                    RandomDieRoller(Random(0)) as DieRoller,
+                )
             }
             families {
                 val abilityCheckFamily = World.family {

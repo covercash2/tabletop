@@ -17,7 +17,8 @@ import tabletop.log.LogVisibility
 import tabletop.result.Err
 import tabletop.result.Ok
 import tabletop.result.Result
-import tabletop.roll.DiceRoller
+import tabletop.roll.Die
+import tabletop.roll.DieRoller
 
 typealias CheckResult = Result<Int, Int>
 
@@ -54,7 +55,7 @@ data class SkillCheck(
 ) : AbilityCheck()
 
 class AbilityCheckSystem(
-    private val diceRoller: DiceRoller = inject(),
+    private val diceRoller: DieRoller = inject(),
 ) : IteratingSystem(
     family { all(AbilityCheck.StraightCheck, StatBlock).none(Dead, Down) },
 ) {
@@ -62,7 +63,7 @@ class AbilityCheckSystem(
         val statBlock = entity[StatBlock]
         val abilityCheck: StraightCheck = entity[AbilityCheck.StraightCheck] as StraightCheck
 
-        val roll = diceRoller.d20()
+        val roll = diceRoller.roll(Die.d20)
         val result = statBlock.abilityCheck(
             roll = roll,
             difficultyClass = abilityCheck.difficultyClass,
