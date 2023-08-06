@@ -3,7 +3,9 @@ package tabletop.stats
 
 import com.github.quillraven.fleks.Component
 import com.github.quillraven.fleks.ComponentType
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class Health(
     val current: Int,
     val max: UInt,

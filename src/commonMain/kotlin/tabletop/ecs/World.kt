@@ -9,8 +9,21 @@ import tabletop.damage.Damage
 import tabletop.damage.Dead
 import tabletop.damage.Down
 import tabletop.damage.TakeDamageSystem
+import tabletop.log.ConsoleLogSystem
+import tabletop.log.KotlinStdoutLogger
+import tabletop.log.Logger
+import tabletop.roll.DiceRoller
+import tabletop.stats.AbilityCheck
+import tabletop.stats.AbilityCheckSystem
+import tabletop.stats.StatBlock
+import kotlin.random.Random
 
 fun getWorld(): World = configureWorld(entityCapacity = 1000) {
+    injectables {
+        add(KotlinStdoutLogger() as Logger)
+        add(DiceRoller(Random.Default))
+    }
+
     families {
         val positionFamily = family {
             all(Position)
@@ -18,10 +31,15 @@ fun getWorld(): World = configureWorld(entityCapacity = 1000) {
         val healthFamily = family {
             all(Health, Damage).none(Dead, Down)
         }
+        val abilityCheckFamily = family {
+            all(AbilityCheck.StraightCheck, StatBlock).none(Dead, Down)
+        }
     }
 
     systems {
         add(MoveSystem())
+        add(AbilityCheckSystem())
         add(TakeDamageSystem())
+        add(ConsoleLogSystem())
     }
 }

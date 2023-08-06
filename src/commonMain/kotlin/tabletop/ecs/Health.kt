@@ -3,9 +3,6 @@ package tabletop.ecs
 
 import com.github.quillraven.fleks.Component
 import com.github.quillraven.fleks.ComponentType
-import com.github.quillraven.fleks.Entity
-import com.github.quillraven.fleks.IteratingSystem
-import com.github.quillraven.fleks.World.Companion.family
 import kotlinx.serialization.Serializable
 import tabletop.damage.Damage
 
@@ -22,12 +19,4 @@ data class Health(
     }
 
     companion object : ComponentType<Health>()
-}
-
-class HealthSystem : IteratingSystem(
-    family { all(Health) },
-) {
-    override fun onTickEntity(entity: Entity) {
-        val health = entity[Health]
-    }
 }
