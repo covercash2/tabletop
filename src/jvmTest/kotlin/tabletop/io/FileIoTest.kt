@@ -3,6 +3,7 @@ package tabletop.io
 
 import okio.fakefilesystem.FakeFileSystem
 import org.junit.jupiter.api.Test
+import tabletop.creature.Level
 import tabletop.getDirLocations
 import tabletop.loadEnvironment
 import tabletop.result.getOrThrow
@@ -23,7 +24,7 @@ class FileIoTest {
     @Test
     fun test() {
         val stats = StatBlock(
-            level = 1u,
+            challengeRating = Level(1u),
             strength = 10u,
             dexterity = 10u,
             constitution = 10u,

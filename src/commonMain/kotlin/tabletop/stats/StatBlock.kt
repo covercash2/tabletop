@@ -4,10 +4,12 @@ package tabletop.stats
 import com.github.quillraven.fleks.Component
 import com.github.quillraven.fleks.ComponentType
 import kotlinx.serialization.Serializable
+import tabletop.creature.ChallengeRating
+import tabletop.creature.Level
 
 @Serializable
 data class StatBlock(
-    val level: UInt,
+    val challengeRating: ChallengeRating,
     val strength: UInt,
     val dexterity: UInt,
     val constitution: UInt,
@@ -30,7 +32,7 @@ data class StatBlock(
     }
 
     val baseProficiencyBonus: UInt by lazy {
-        level.plus(1u).floorDiv(4u).plus(2u)
+        challengeRating.value.plus(1u).floorDiv(4u).plus(2u)
     }
 
     fun getModifierFor(ability: Ability): Int {
@@ -45,7 +47,7 @@ data class StatBlock(
 fun trivialStatBlock(
     proficiencies: Set<Proficiency> = emptySet(),
 ) = StatBlock(
-    level = 1u,
+    challengeRating = Level(1u),
     strength = 10u,
     dexterity = 10u,
     constitution = 10u,

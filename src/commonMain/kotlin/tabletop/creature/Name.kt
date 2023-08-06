@@ -1,5 +1,5 @@
 /* (C)2023 */
-package tabletop.character
+package tabletop.creature
 
 import com.github.quillraven.fleks.Component
 import com.github.quillraven.fleks.ComponentType
